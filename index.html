@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#6C3BFF">
+<meta name="color-scheme" content="light dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Phylo-Class : quel lien de parenté ?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<noscript>Phylo-Class a besoin de JavaScript pour fonctionner.</noscript>
+<div class="app" data-lv="1">
+<header class="top">
+<div class="logo"><span class="mascot" data-o="0" aria-hidden="true">🐝</span> PHYLO<i>-</i>CLASS <span class="mascot" data-o="5" aria-hidden="true">🦊</span></div>
+<ol class="lv" aria-label="Niveaux"><li><b>1</b><span>Associe</span></li><li><b>2</b><span>Décode</span></li><li><b>3</b><span>Empile</span></li><li><b>4</b><span>Relie</span></li></ol>
+<div class="tm" id="tm" hidden aria-label="Chronomètre"><span>⏱ <b id="tmStep">00:00</b></span><span title="Temps total">Σ <b id="tmTot">00:00</b></span></div>
+<div class="who" id="who" hidden><span aria-hidden="true">👤</span><b id="pname"></b><button class="btn alt s" id="hubbtn" aria-label="Menu des étapes" hidden>🧭</button><button class="btn alt s" id="rev" aria-label="Revoir les étapes terminées" hidden>📖</button><button class="btn alt s" id="quit" aria-label="Changer de joueur">⎋</button></div>
+<button class="btn alt s snd" id="snd" aria-pressed="false">🔊</button>
+<div class="xp" aria-label="Score"><span aria-hidden="true">⭐</span><b id="xp">0</b><small>pts</small></div>
+</header>
+<section id="home" class="screen home">
+<div class="biglogo"><span class="mascot" data-o="0" aria-hidden="true">🐝</span> PHYLO<i>-</i>CLASS <span class="mascot" data-o="5" aria-hidden="true">🦊</span></div>
+<p>Parenté, évolution, classification : quel est le lien de parenté entre les êtres vivants ?<br>Associe, classe, relie… et plus tu es rapide, plus tu gagnes de points bonus ⏱</p>
+<input class="in" id="pn" maxlength="24" placeholder="Ton prénom ou ton pseudo" autocomplete="off" aria-label="Ton nom de joueur">
+<div class="hmsg" id="hmsg" role="status"></div>
+<p class="dev" id="devhint"></p>
+<button class="btn" id="go">C’est parti !</button>
+<button class="btn alt s" id="adm">⚙️ Mode paramétrage</button>
+</section>
+<section id="admin" class="screen" hidden>
+<div class="thead2"><h2>⚙️ Paramétrage</h2><p id="astat"></p><button class="btn alt" id="aquit">Quitter</button></div>
+<div class="adm">
+<div class="acard"><h3>Codes des étapes</h3><p style="margin:0;font-size:.8rem;color:var(--muted)">Une étape sans code reste fermée. Les codes sont demandés au joueur avant chaque étape.</p><div id="acodes"></div></div>
+<div class="acard"><h3>Code administrateur</h3><div class="arow"><input class="in s" id="aadm" type="text" placeholder="Nouveau code" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Nouveau code administrateur"><button class="btn s" id="aadmok">Changer</button></div></div>
+<div class="acard"><h3>Résultats récents</h3><div class="ares" id="ares">Chargement…</div></div>
+</div>
+</section>
+<section id="pick" class="screen" hidden>
+<div class="thead2"><h2>Choisis tes animaux</h2><p>Choisis de <b>5 à 10 animaux</b> dans la collection. <b>Plus tu en choisis, plus le jeu est long</b> : compte environ 2 minutes par animal. Tu pourras tester avec d’autres animaux, plus nombreux, dans d’autres parties.</p></div>
+<div class="pickbar"><b id="pickcnt" role="status"></b><div class="actions" id="pickpre"><button class="btn alt s" data-n="5">5 · rapide</button><button class="btn alt s" data-n="7">7 · moyen</button><button class="btn alt s" data-n="10">10 · complet</button></div></div>
+<div class="pickgrid" id="pickgrid"></div>
+<div class="actions"><button class="btn" id="pickgo" disabled>Valider ma collection</button></div>
+</section>
+<section id="hub" class="screen" hidden>
+<div class="thead2"><h2 id="hubt">Choisis ton étape</h2><p>Chaque étape s’ouvre avec son code, donné par ton enseignant. Tu peux revenir ici à tout moment avec le bouton 🧭.</p></div>
+<div class="hubgrid" id="hubgrid"></div>
+<div class="actions"><button class="btn alt s" id="hubchg">🔁 Changer mes animaux</button></div>
+</section>
+<section id="game" class="screen" hidden>
+<div class="strip-row"><h1>Trouve l’animal de la fiche <small id="prog"></small></h1><div class="strip" id="strip" aria-label="Associations réussies"></div></div>
+<main>
+<section aria-labelledby="hl" class="panel"><h2 id="hl">Les animaux</h2><div class="grid" id="left"></div></section>
+<section aria-labelledby="hr" class="panel"><h2 id="hr">La fiche à associer</h2><div class="one" id="right"></div></section>
+</main>
+</section>
+<section id="end" class="screen" hidden>
+<div class="endhead"><div class="et"><h2>Niveau 1 terminé ! 🎉</h2><p id="endmsg"></p><p class="ask">Prochain défi : complète le tableau des caractéristiques.</p></div>
+<div class="scorebig"><small>Score du jeu</small><b id="final">0</b></div>
+<div class="actions"><button class="btn" id="totable">Niveau 2 : le tableau</button><button class="btn alt" id="replay">Rejouer</button></div></div>
+<div class="pairs" id="pairs"></div>
+</section>
+<section id="tbl" class="screen" hidden>
+<div class="thead2"><h2>Niveau 2 : décode le tableau</h2><p id="tinfo">Coche les caractéristiques de chaque animal (+1 par case juste). Glisse l’image d’un animal pour déplacer sa colonne et rapprocher les animaux qui se ressemblent (+1 par animal bien placé). Touche l’image d’un animal (en bas du tableau) : sa fiche s’affiche en bas à gauche, touche la fiche pour l’agrandir. Glisse l’image pour déplacer la colonne.</p></div>
+<div id="tres" tabindex="-1" hidden></div>
+<div class="sr" id="tlive" aria-live="polite"></div>
+<div class="t2body"><div class="tablewrap"><table id="grid"></table></div>
+<aside class="solo" id="solo" hidden><b id="soloN"></b><div class="dots" id="soloDots" aria-hidden="true"></div><div class="soloimgs"><img id="soloAn" alt=""><img id="soloAt" alt=""></div><span id="soloName"></span></aside></div>
+<div class="tfoot"><div class="mvhint" id="mvhint" hidden>↔ Avant de valider : fais glisser l’image d’un animal (en bas) pour déplacer sa colonne et rapprocher les animaux d’un même groupe.</div><div class="legend" id="legend" hidden>
+<span><i class="k ok">✓</i> juste (couleur de la ligne)</span><span><i class="k ko">✓</i> par erreur</span><span><i class="k miss"></i> oubliée</span>
+<span><b class="tg good">Bien placé</b> +1</span><span><b class="tg bad">À rapprocher</b></span><span>💡 Survole (ou appui long sur) une ligne : elle clignote</span></div>
+<div class="actions"><button class="btn alt" id="prevanimal" hidden>◀ Animal précédent</button><button class="btn" id="nextanimal" hidden>Animal suivant ▶</button><button class="btn alt" id="colorbtn">🎨 Colorier mes coches</button><button class="btn" id="validate">Valider le tableau</button><button class="btn" id="tobox" hidden>Niveau 3 : les boîtes</button><button class="btn alt" id="again" hidden>Rejouer</button></div></div>
+</section>
+<section id="box" class="screen" hidden>
+<div class="thead2"><h2>Niveau 3 : empile les boîtes</h2><p id="bstep"></p><button class="btn" id="tofront" hidden>Niveau 4 : vue de face</button></div>
+<div class="topview" id="top"><div id="topin"></div></div>
+</section>
+<section id="front" class="screen" hidden>
+<div class="thead2"><h2>Niveau 4 : relie et place</h2><p id="fstep"></p><button class="btn" id="fbilan" hidden>📖 Bilan : correction</button><button class="btn" id="frecap" hidden>📋 Tableau complet</button><button class="btn" id="fprint" hidden>🖨️ Imprimer / PDF</button><button class="btn alt" id="fagain" hidden>Rejouer</button></div>
+<div id="fres" tabindex="-1" hidden></div>
+<div class="bank" id="bank"></div>
+<div class="treewrap" id="treewrap"><div class="tree" id="tree"></div></div>
+<div class="tlegend">★ Étoile = ancêtre commun du groupe qui suit, placé au nœud (clique sur l’étoile pour le mettre en surbrillance) · Branche épaisse = branche principale · Clique sur deux animaux pour les comparer</div>
+</section>
+<section id="review" class="screen" hidden>
+<div class="thead2"><h2 id="vtitle">Revoir les étapes</h2><div class="vtabs" id="vtabs"></div><button class="btn alt" id="vback">Retour au jeu</button></div>
+<div class="thead2"><p id="vinfo"></p><div class="vmode" id="vmode" hidden><button class="btn s" data-m="mine">Mon tableau</button> <button class="btn s" data-m="ok">Correction</button></div></div>
+<div class="vbody" id="vbody"></div>
+</section>
+<section id="recap" class="screen" hidden>
+<div class="thead2"><h2 id="rtitle"></h2><p id="rsub"></p><div class="actions"><button class="btn" id="rprint">🖨️ Imprimer / PDF</button><button class="btn alt" id="rback">Retour à l’arbre</button></div></div>
+<div class="tablewrap"><table id="grid2" class="val pal"></table></div>
+</section>
+<div class="zoom" id="gate" role="dialog" aria-modal="true" aria-label="Code" hidden>
+<div class="zbox gbox"><h3 id="gt"></h3><p id="gh"></p><input class="in" id="gi" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Code"><div class="gmsg" id="gm" role="alert"></div>
+<div class="actions"><button class="btn" id="gok">Valider</button><button class="btn alt" id="gno">Annuler</button></div></div></div>
+<div class="zoom" id="zoom" role="dialog" aria-modal="true" aria-label="Image agrandie" hidden>
+<div class="zbox"><div class="zbar"><button class="btn alt" id="zprev" aria-label="Animal précédent">◀</button><h3 id="zname"></h3><button class="btn alt" id="znext" aria-label="Animal suivant">▶</button><button class="btn" id="zclose" aria-label="Fermer">✕</button></div>
+<div class="zimgs"><img id="za" alt=""><img id="zb" alt=""></div></div></div>
+<footer class="foot"><div class="msg" id="msg" role="status" aria-live="polite"></div></footer>
+</div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
